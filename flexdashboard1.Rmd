@@ -1,0 +1,65 @@
+---
+title: "Assignment4FlexDashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(readxl)
+library(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)
+library(stringr) # if you have not installed this package, please install it.
+library(ggplot2) # if you have not installed this package, please install it.
+library(scales)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+
+```
+
+```{r}
+GSS2022 <- read_dta("data/GSS2022.dta")
+GSS2022 <- GSS2022 %>%
+  mutate(class = as.integer(class))
+
+
+class_hist <- GSS2022 %>%
+  drop_na(class) %>%
+  mutate(class = recode(class, "1" = "Lower Class", "2" = "Working Class", "3" = "Middle Class", "4" = "Upper Class")) %>%
+  ggplot(aes(x=class)) +
+  geom_bar(color = "black") +
+  scale_x_discrete(limits = c("Lower Class", "Working Class", "Middle Class", "Upper Class")) +
+  scale_y_continuous(label=comma) +
+  labs(title = "Most Americans Identify as Working or Middle Class",
+       x = "Social Class",
+       y = "Count",
+       caption = "Data from 2022 General Social Survey (GSS), NORC") +
+  theme(plot.title = element_text(size = 10))
+
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+class_hist
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+

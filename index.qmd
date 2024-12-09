@@ -3,29 +3,15 @@ title: "About Me"
 about:
   id: me
   template: broadside
-  image: img/profile_Fall22.jpg
+  image: img/headshot.jpg
 ---
 
 ::: {#me}
-## Goals
+## Introduction
 
-Teach the class to host webpage and projects using GitHub.
+My name is Tom Hesse. I am a student in the University of Masters of Science in Data Analytics & Computational Social Science program at the University of Massachusetts Amherst. In undergraduate, I studied Criminal Justice and Psychology at Westfield State University. I am broadly interested in the social sciences, but my specific research interests include demographics, state and national politics, human geography, crime & human behavior, and more. My most recent projects have focused on the rural-urban divide in America, and how immigration is connected to economic growth.
 
-## Education
+## My Resume
 
-UIowa
+<a href="files/tom_hesse_resume.pdf" target="_blank">Open Resume</a>
 
-UPitt
-
-Sun Yat-sen U
-
-## Experience
-
-DACSS UMass
-
-Poli Sci, Grinnell College
-
-Carter Center
-:::
-
-Thanks for checking out my web site!

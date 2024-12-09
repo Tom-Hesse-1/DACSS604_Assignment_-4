@@ -1,10 +1,171 @@
 [
   {
-    "objectID": "storyboard.html",
-    "href": "storyboard.html",
+    "objectID": "Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5.html",
+    "href": "Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5.html",
+    "title": "Thomas_Hesse_DACSS_601_Challenge_5",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org.\n\nlibrary(tidyverse)\n\nWarning: package 'ggplot2' was built under R version 4.3.3\n\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.0\n✔ ggplot2   3.5.0     ✔ tibble    3.2.1\n✔ lubridate 1.9.2     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(dplyr)\nlibrary(readr)\nlibrary(readxl)\nlibrary(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)\n\n#for plotting time\nlibrary(ggplot2) # if you have not installed this package, please install it.\nlibrary(lubridate)\nlibrary(gganimate)\n\nWarning: package 'gganimate' was built under R version 4.3.2\n\nlibrary(gifski)\n\nWarning: package 'gifski' was built under R version 4.3.2\n\nlibrary(hrbrthemes)\n\nWarning: package 'hrbrthemes' was built under R version 4.3.2\n\n\nNOTE: Either Arial Narrow or Roboto Condensed fonts are required to use these themes.\n      Please use hrbrthemes::import_roboto_condensed() to install Roboto Condensed and\n      if Arial Narrow is not on your system, please see https://bit.ly/arialnarrow\n\nlibrary(scales)\n\nWarning: package 'scales' was built under R version 4.3.3\n\n\n\nAttaching package: 'scales'\n\nThe following object is masked from 'package:purrr':\n\n    discard\n\nThe following object is masked from 'package:readr':\n\n    col_factor\n\n#for plotting space\nlibrary(sp)\nlibrary(mdsr)\nlibrary(sf)\n\nLinking to GEOS 3.11.2, GDAL 3.7.2, PROJ 9.3.0; sf_use_s2() is TRUE\n\nlibrary(maps)\n\n\nAttaching package: 'maps'\n\nThe following object is masked from 'package:purrr':\n\n    map\n\nlibrary(rnaturalearth)\n\nSupport for Spatial objects (`sp`) will be deprecated in {rnaturalearth} and will be removed in a future release of the package. Please use `sf` objects with {rnaturalearth}. For example: `ne_download(returnclass = 'sf')`\n\nlibrary(rnaturalearthdata)\n\n\nAttaching package: 'rnaturalearthdata'\n\nThe following object is masked from 'package:rnaturalearth':\n\n    countries110\n\nlibrary(openintro)\n\nLoading required package: airports\nLoading required package: cherryblossom\nLoading required package: usdata\n\nlibrary(tigris)\n\nTo enable caching of data, set `options(tigris_use_cache = TRUE)`\nin your R script or .Rprofile.\n\nknitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)\n\nPart 1\n\nUFO_Data &lt;- read.csv(\"_data/complete_UFO.csv\")\n\nUFO_Data$datetime &lt;- mdy(UFO_Data$datetime)\n  \n\nhead(UFO_Data)\n\n    datetime                          city state country   shape\n1 1906-11-11                wien (austria)                 other\n2 1910-01-02             kirksville (near)    mo      us    disk\n3 1910-05-28                         solon    me      us unknown\n4 1910-06-01                   wills point    tx      us   cigar\n5 1914-09-15         meeting lake (canada)    ab         unknown\n6 1916-04-05 france (above; from aircraft)                 cigar\n  duration..seconds. duration..hours.min.\n1              10800                  3 h\n2                120              minutes\n3                  0        don&#39t know\n4                120            2 minutes\n5                  0                     \n6                 60         about 1 min.\n                                                                                                                                             comments\n1                                                              The oldest professional photo of a UFO object is from Wien observatory&#44 in 1906&#33\n2                                                                                                 Historical sighting (1903 - 1913) Northern Missouri\n3 entry in my great-grandmother&#39s diary&#44date 28 may 1910&#44refers to watching the comet zig-zaging in the sky&#44 followed by a zig-zag diagra\n4                                                                                                        Cigar shaped object moving from West to East\n5                      Night flying &quot;airplane&quot; with search lights observed on several occasions near Meeting Lake&#44 Alberta in late 1914.\n6                                                                                    ((NUFORC Note:  Possible hoax.  PD))  Saw 3 cigar shaped crafts.\n  date.posted   latitude   longitude  X\n1  12/23/2002  48.208174   16.373819 NA\n2   9/15/2005 40.1947222  -92.583056 NA\n3   12/5/2001 44.9494444  -69.858889 NA\n4   4/16/2005 32.7091667  -96.008056 NA\n5    2/1/2007  55.170828 -118.837956 NA\n6    3/9/2004  46.227638    2.213749 NA\n\ndim(UFO_Data)\n\n[1] 88875    12\n\n\nThe dimension of the complete_UFO data set is 88,875 rows by 12 columns. Each row (unit of observation) represents a distinct UFO sighting. Each column is some variable about that sighting, such as the date and time when the sighting occurred, the city, state and country where the sighting occurred, the shape of the UFO, etc.\n\nUFO_Timeseries_Year &lt;- UFO_Data %&gt;%\n  group_by(year(datetime)) %&gt;%\n  mutate(count = n()) %&gt;%\n  ggplot(aes(x = datetime, y = count)) +\n  geom_line() +\n  labs(title = \"UFO Sightings Spike From 1990s–2010s, Followed by a Sharp Drop\", x = \"Year\", y = \"Number of UFO Sightings\", caption = \"Data From https://www.kaggle.com/datasets/NUFORC/ufo-sightings\") +\n  scale_y_continuous(labels = label_comma()) +\n  scale_x_date(date_breaks = \"5 years\",\n               labels = date_format(\"%Y\")) +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\nUFO_Timeseries_Year\n\n\n\n\n\n\n\nUFO_Timeseries_Month &lt;- UFO_Data %&gt;%\n  mutate(month = month(datetime), year = year(datetime)) %&gt;%\n  group_by(month, year) %&gt;%\n  mutate(count = n()) %&gt;%\n  ggplot(aes(x = datetime, y = count)) +\n  geom_line(na.rm = TRUE) +\n  scale_x_date(date_breaks = \"1 month\", \n                 labels=date_format(\"%b %Y\"),\n                 limits = as.Date(c('2010-01-01','2014-01-01'))) +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5)) +\n  labs(title = \"Between 01/01/2010–01/01/2014, Reported UFO Sightings Spike Around July\", x = \"Month\", y = \"Number of UFO Sightings\", caption = \"Data From https://www.kaggle.com/datasets/NUFORC/ufo-sightings\")\n\nUFO_Timeseries_Month\n\n\n\n\n\n\n\n\nFrom 1906 (the first year included in the data set) until the early 1940s, the number of reported UFO sightings consistently stay at a zero or near-zero number. Starting in the early 1940s, reported UFO sightings begin to climb slowly year after year, but remain at a relatively small number—only reaching a few hundred sightings per year, at most—for the next 50 years, roughly. In the mid 1990s, the number of reported UFO sightings spikes, with sharp increases as time continues. By the mid 2000s, certain years have thousands of reported UFO sightings, reaching a peak of close to 8,000 sightings in one year, in the early 2010s. In the mid 2010s through the end of the data set, the number of reported UFO sightings dropped sharply again. By month between 2010/01/01 and 2014/01/01, UFO sightings seem to spike in the early-mid summer, around July. Reported UFO sightings seemingly drop off shortly after these spikes, either in August in September, and then experience fluctuations throughout the rest of the year, until the next early-mid summer spike.\nPart 2\n\nhaunted_places &lt;- read_csv(\"_data/haunted_places.csv\")\n\n\nprint(haunted_places)\n\n# A tibble: 10,992 × 10\n   city       country description location state state_abbrev longitude latitude\n   &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;\n 1 Ada        United… \"Ada witch… Ada Cem… Mich… MI               -85.5     43.0\n 2 Addison    United… \"A little … North A… Mich… MI               -84.4     42.0\n 3 Adrian     United… \"If you ta… Ghost T… Mich… MI               -84.0     41.9\n 4 Adrian     United… \"In the 19… Siena H… Mich… MI               -84.0     41.9\n 5 Albion     United… \"Kappa Del… Albion … Mich… MI               -84.7     42.2\n 6 Albion     United… \"A mysteri… Riversi… Mich… MI               -84.8     42.2\n 7 Algoma To… United… \"On a wind… Hell's … Mich… MI                NA       NA  \n 8 Algonac    United… \"Morrow Ro… Morrow … Mich… MI               -82.6     42.7\n 9 Allegan    United… \"People re… Elks Lo… Mich… MI               -85.8     42.5\n10 Allegan    United… \"Various g… The Gri… Mich… MI               -85.9     42.5\n# ℹ 10,982 more rows\n# ℹ 2 more variables: city_longitude &lt;dbl&gt;, city_latitude &lt;dbl&gt;\n\ndim(haunted_places)\n\n[1] 10992    10\n\n\nThe haunted_places data set has a dimension of 10,992 rows by 10 columns. The unit of observation is a unique haunted place. Each column is some variable about that haunted place, such as the state it is located in , the coordinates of the place, the coordinates of the city the place is located in, etc.\n\nstates_sf&lt;-read_sf(file.path(\"C:/Users/Colonel/OneDrive/Desktop/Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5/state/cb_2018_us_state_500k.shp\"))\n\n\nstates &lt;- ggplot()+\n  geom_sf(data = states_sf)+\n  coord_sf(xlim = c(-180, -65),\n          ylim = c(20, 70))+\n  theme_light()\n\nstates\n\n\n\n\n\n\n\n\n\nhaunted_states &lt;- states +\n  geom_point(data = haunted_places, aes(x = city_longitude, y = city_latitude), size = 0.1, na.rm = TRUE) +\n  labs(title = \"Locations of Haunted Places Cluster Around Population Centers\", x = \"Longitude\", y = \"Latitude\", caption = \"Data From https://www.kaggle.com/datasets/sujaykapadnis/haunted-places\")\n\nhaunted_states\n\n\n\n\n\n\n\n\nBased on the map above, the locations of haunted places seem to cluster around a number of spots within the US. The largest clusters seem to be located in the Northeast, Mid Atlantic, Great Lake, and Piedmont Atlantic regions of the US. Smaller clusters of haunted places are located around the Southern California, Northern California, Cascadia, Florida, Gulf Coast-Texas, and Central-Texas regions, as well as scattered throughout the midwest, great plains, and western regions. Despite a few smaller clusters, much of the space between the midwest and west coast has very few reports of haunted places, relative to the rest of the US. Outside of the contiguous US, Alaska seems to have very few reports of haunted places, and Hawaii seems to have a small cluster located on its islands."
+  },
+  {
+    "objectID": "Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5.html#quarto",
+    "href": "Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5.html#quarto",
+    "title": "Thomas_Hesse_DACSS_601_Challenge_5",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org.\n\nlibrary(tidyverse)\n\nWarning: package 'ggplot2' was built under R version 4.3.3\n\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.0\n✔ ggplot2   3.5.0     ✔ tibble    3.2.1\n✔ lubridate 1.9.2     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(dplyr)\nlibrary(readr)\nlibrary(readxl)\nlibrary(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)\n\n#for plotting time\nlibrary(ggplot2) # if you have not installed this package, please install it.\nlibrary(lubridate)\nlibrary(gganimate)\n\nWarning: package 'gganimate' was built under R version 4.3.2\n\nlibrary(gifski)\n\nWarning: package 'gifski' was built under R version 4.3.2\n\nlibrary(hrbrthemes)\n\nWarning: package 'hrbrthemes' was built under R version 4.3.2\n\n\nNOTE: Either Arial Narrow or Roboto Condensed fonts are required to use these themes.\n      Please use hrbrthemes::import_roboto_condensed() to install Roboto Condensed and\n      if Arial Narrow is not on your system, please see https://bit.ly/arialnarrow\n\nlibrary(scales)\n\nWarning: package 'scales' was built under R version 4.3.3\n\n\n\nAttaching package: 'scales'\n\nThe following object is masked from 'package:purrr':\n\n    discard\n\nThe following object is masked from 'package:readr':\n\n    col_factor\n\n#for plotting space\nlibrary(sp)\nlibrary(mdsr)\nlibrary(sf)\n\nLinking to GEOS 3.11.2, GDAL 3.7.2, PROJ 9.3.0; sf_use_s2() is TRUE\n\nlibrary(maps)\n\n\nAttaching package: 'maps'\n\nThe following object is masked from 'package:purrr':\n\n    map\n\nlibrary(rnaturalearth)\n\nSupport for Spatial objects (`sp`) will be deprecated in {rnaturalearth} and will be removed in a future release of the package. Please use `sf` objects with {rnaturalearth}. For example: `ne_download(returnclass = 'sf')`\n\nlibrary(rnaturalearthdata)\n\n\nAttaching package: 'rnaturalearthdata'\n\nThe following object is masked from 'package:rnaturalearth':\n\n    countries110\n\nlibrary(openintro)\n\nLoading required package: airports\nLoading required package: cherryblossom\nLoading required package: usdata\n\nlibrary(tigris)\n\nTo enable caching of data, set `options(tigris_use_cache = TRUE)`\nin your R script or .Rprofile.\n\nknitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)\n\nPart 1\n\nUFO_Data &lt;- read.csv(\"_data/complete_UFO.csv\")\n\nUFO_Data$datetime &lt;- mdy(UFO_Data$datetime)\n  \n\nhead(UFO_Data)\n\n    datetime                          city state country   shape\n1 1906-11-11                wien (austria)                 other\n2 1910-01-02             kirksville (near)    mo      us    disk\n3 1910-05-28                         solon    me      us unknown\n4 1910-06-01                   wills point    tx      us   cigar\n5 1914-09-15         meeting lake (canada)    ab         unknown\n6 1916-04-05 france (above; from aircraft)                 cigar\n  duration..seconds. duration..hours.min.\n1              10800                  3 h\n2                120              minutes\n3                  0        don&#39t know\n4                120            2 minutes\n5                  0                     \n6                 60         about 1 min.\n                                                                                                                                             comments\n1                                                              The oldest professional photo of a UFO object is from Wien observatory&#44 in 1906&#33\n2                                                                                                 Historical sighting (1903 - 1913) Northern Missouri\n3 entry in my great-grandmother&#39s diary&#44date 28 may 1910&#44refers to watching the comet zig-zaging in the sky&#44 followed by a zig-zag diagra\n4                                                                                                        Cigar shaped object moving from West to East\n5                      Night flying &quot;airplane&quot; with search lights observed on several occasions near Meeting Lake&#44 Alberta in late 1914.\n6                                                                                    ((NUFORC Note:  Possible hoax.  PD))  Saw 3 cigar shaped crafts.\n  date.posted   latitude   longitude  X\n1  12/23/2002  48.208174   16.373819 NA\n2   9/15/2005 40.1947222  -92.583056 NA\n3   12/5/2001 44.9494444  -69.858889 NA\n4   4/16/2005 32.7091667  -96.008056 NA\n5    2/1/2007  55.170828 -118.837956 NA\n6    3/9/2004  46.227638    2.213749 NA\n\ndim(UFO_Data)\n\n[1] 88875    12\n\n\nThe dimension of the complete_UFO data set is 88,875 rows by 12 columns. Each row (unit of observation) represents a distinct UFO sighting. Each column is some variable about that sighting, such as the date and time when the sighting occurred, the city, state and country where the sighting occurred, the shape of the UFO, etc.\n\nUFO_Timeseries_Year &lt;- UFO_Data %&gt;%\n  group_by(year(datetime)) %&gt;%\n  mutate(count = n()) %&gt;%\n  ggplot(aes(x = datetime, y = count)) +\n  geom_line() +\n  labs(title = \"UFO Sightings Spike From 1990s–2010s, Followed by a Sharp Drop\", x = \"Year\", y = \"Number of UFO Sightings\", caption = \"Data From https://www.kaggle.com/datasets/NUFORC/ufo-sightings\") +\n  scale_y_continuous(labels = label_comma()) +\n  scale_x_date(date_breaks = \"5 years\",\n               labels = date_format(\"%Y\")) +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\nUFO_Timeseries_Year\n\n\n\n\n\n\n\nUFO_Timeseries_Month &lt;- UFO_Data %&gt;%\n  mutate(month = month(datetime), year = year(datetime)) %&gt;%\n  group_by(month, year) %&gt;%\n  mutate(count = n()) %&gt;%\n  ggplot(aes(x = datetime, y = count)) +\n  geom_line(na.rm = TRUE) +\n  scale_x_date(date_breaks = \"1 month\", \n                 labels=date_format(\"%b %Y\"),\n                 limits = as.Date(c('2010-01-01','2014-01-01'))) +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5)) +\n  labs(title = \"Between 01/01/2010–01/01/2014, Reported UFO Sightings Spike Around July\", x = \"Month\", y = \"Number of UFO Sightings\", caption = \"Data From https://www.kaggle.com/datasets/NUFORC/ufo-sightings\")\n\nUFO_Timeseries_Month\n\n\n\n\n\n\n\n\nFrom 1906 (the first year included in the data set) until the early 1940s, the number of reported UFO sightings consistently stay at a zero or near-zero number. Starting in the early 1940s, reported UFO sightings begin to climb slowly year after year, but remain at a relatively small number—only reaching a few hundred sightings per year, at most—for the next 50 years, roughly. In the mid 1990s, the number of reported UFO sightings spikes, with sharp increases as time continues. By the mid 2000s, certain years have thousands of reported UFO sightings, reaching a peak of close to 8,000 sightings in one year, in the early 2010s. In the mid 2010s through the end of the data set, the number of reported UFO sightings dropped sharply again. By month between 2010/01/01 and 2014/01/01, UFO sightings seem to spike in the early-mid summer, around July. Reported UFO sightings seemingly drop off shortly after these spikes, either in August in September, and then experience fluctuations throughout the rest of the year, until the next early-mid summer spike.\nPart 2\n\nhaunted_places &lt;- read_csv(\"_data/haunted_places.csv\")\n\n\nprint(haunted_places)\n\n# A tibble: 10,992 × 10\n   city       country description location state state_abbrev longitude latitude\n   &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;\n 1 Ada        United… \"Ada witch… Ada Cem… Mich… MI               -85.5     43.0\n 2 Addison    United… \"A little … North A… Mich… MI               -84.4     42.0\n 3 Adrian     United… \"If you ta… Ghost T… Mich… MI               -84.0     41.9\n 4 Adrian     United… \"In the 19… Siena H… Mich… MI               -84.0     41.9\n 5 Albion     United… \"Kappa Del… Albion … Mich… MI               -84.7     42.2\n 6 Albion     United… \"A mysteri… Riversi… Mich… MI               -84.8     42.2\n 7 Algoma To… United… \"On a wind… Hell's … Mich… MI                NA       NA  \n 8 Algonac    United… \"Morrow Ro… Morrow … Mich… MI               -82.6     42.7\n 9 Allegan    United… \"People re… Elks Lo… Mich… MI               -85.8     42.5\n10 Allegan    United… \"Various g… The Gri… Mich… MI               -85.9     42.5\n# ℹ 10,982 more rows\n# ℹ 2 more variables: city_longitude &lt;dbl&gt;, city_latitude &lt;dbl&gt;\n\ndim(haunted_places)\n\n[1] 10992    10\n\n\nThe haunted_places data set has a dimension of 10,992 rows by 10 columns. The unit of observation is a unique haunted place. Each column is some variable about that haunted place, such as the state it is located in , the coordinates of the place, the coordinates of the city the place is located in, etc.\n\nstates_sf&lt;-read_sf(file.path(\"C:/Users/Colonel/OneDrive/Desktop/Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5/state/cb_2018_us_state_500k.shp\"))\n\n\nstates &lt;- ggplot()+\n  geom_sf(data = states_sf)+\n  coord_sf(xlim = c(-180, -65),\n          ylim = c(20, 70))+\n  theme_light()\n\nstates\n\n\n\n\n\n\n\n\n\nhaunted_states &lt;- states +\n  geom_point(data = haunted_places, aes(x = city_longitude, y = city_latitude), size = 0.1, na.rm = TRUE) +\n  labs(title = \"Locations of Haunted Places Cluster Around Population Centers\", x = \"Longitude\", y = \"Latitude\", caption = \"Data From https://www.kaggle.com/datasets/sujaykapadnis/haunted-places\")\n\nhaunted_states\n\n\n\n\n\n\n\n\nBased on the map above, the locations of haunted places seem to cluster around a number of spots within the US. The largest clusters seem to be located in the Northeast, Mid Atlantic, Great Lake, and Piedmont Atlantic regions of the US. Smaller clusters of haunted places are located around the Southern California, Northern California, Cascadia, Florida, Gulf Coast-Texas, and Central-Texas regions, as well as scattered throughout the midwest, great plains, and western regions. Despite a few smaller clusters, much of the space between the midwest and west coast has very few reports of haunted places, relative to the rest of the US. Outside of the contiguous US, Alaska seems to have very few reports of haunted places, and Hawaii seems to have a small cluster located on its islands."
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "This Project was an exercise in R, analyzing and visualizing geographic and time-based data. The objective was to practice writing code that analyzes and presents these types of data. This exercised examined the temporal and geographic distributions of UFO sightings. Project 1"
+  },
+  {
+    "objectID": "projects.html#project-1-practice-visualizing-geographic-and-time-based-data-in-r",
+    "href": "projects.html#project-1-practice-visualizing-geographic-and-time-based-data-in-r",
+    "title": "Projects",
+    "section": "",
+    "text": "This Project was an exercise in R, analyzing and visualizing geographic and time-based data. The objective was to practice writing code that analyzes and presents these types of data. This exercised examined the temporal and geographic distributions of UFO sightings. Project 1"
+  },
+  {
+    "objectID": "projects.html#project-2-dashboard",
+    "href": "projects.html#project-2-dashboard",
+    "title": "Projects",
+    "section": "Project 2: Dashboard",
+    "text": "Project 2: Dashboard\nThis dashboard shows the distribution of US households by social class. Project 2"
+  },
+  {
+    "objectID": "Project1/starbucks.html",
+    "href": "Project1/starbucks.html",
+    "title": "Interactive Map",
+    "section": "",
+    "text": "Make sure you change the author’s name in the above YAML header."
+  },
+  {
+    "objectID": "Project1/starbucks.html#setup",
+    "href": "Project1/starbucks.html#setup",
+    "title": "Interactive Map",
+    "section": "Setup",
+    "text": "Setup\nIf you have not installed the following packages, please install them before loading them.\n\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)\nlibrary(stringr) # if you have not installed this package, please install it.\nlibrary(ggplot2) # if you have not installed this package, please install it.\nlibrary(sf) \nlibrary(mapview)\n#Loading colorblind-friendly color map package: viridisLite\nlibrary(viridis)\n\nknitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)"
+  },
+  {
+    "objectID": "Project1/starbucks.html#part-1.-starbucks-map",
+    "href": "Project1/starbucks.html#part-1.-starbucks-map",
+    "title": "Interactive Map",
+    "section": "Part 1. Starbucks Map",
+    "text": "Part 1. Starbucks Map\n\nLoading the example data of starbuck locations\n\n\n#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\nhead(starbucks)\n\n\n  \n\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n\nhead(starbucks)\n\n\n  \n\n\n\nsubset locations data to MA\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nwrite.csv(starbucksMA, \"starbucksMA.csv\", row.names = FALSE)\n\nConvert the dataset into a spatial object (sf)\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nlet’s compare the difference between using size and brightness\nSize:\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column\n\nBrightness:\n\nmapview(starbucks_sf, zcol = \"gross_profit\", cex = 3, legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#zcol = specifies that the colors (brightness or color/hue depends on if the variable is continous or not) of the bubbles should vary by the values of a particular column"
+  },
+  {
+    "objectID": "Project1/starbucks.html#part-2.-animated-graph-mtcars",
+    "href": "Project1/starbucks.html#part-2.-animated-graph-mtcars",
+    "title": "Interactive Map",
+    "section": "Part 2. Animated Graph (mtcars)",
+    "text": "Part 2. Animated Graph (mtcars)\n\nlibrary(gganimate)\nlibrary(gifski)\n\n# Example animation\np &lt;- ggplot(mtcars, aes(mpg, wt)) +\n  geom_point() +\n  transition_states(gear, transition_length = 2, state_length = 1) +\n  ggtitle('Gear: {closest_state}')\n\n# Use gifski_renderer for GIF animations\nanimate(p, renderer = gifski_renderer())\n\n\n\n\n\n\n\n# You can try different setup, such as duration, fps, size of the graph):\n#animate(p, duration = 25, fps = 10, width = 1000, height = 1000, renderer = #gifski_renderer())"
+  },
+  {
+    "objectID": "Input Sidebar.html",
+    "href": "Input Sidebar.html",
+    "title": "Sidebar",
+    "section": "",
+    "text": "# shiny inputs defined here"
+  },
+  {
+    "objectID": "Input Sidebar.html#inputs",
+    "href": "Input Sidebar.html#inputs",
+    "title": "Sidebar",
+    "section": "",
+    "text": "# shiny inputs defined here"
+  },
+  {
+    "objectID": "Input Sidebar.html#column",
+    "href": "Input Sidebar.html#column",
+    "title": "Sidebar",
+    "section": "Column",
+    "text": "Column\n\nChart 1\n\n\nChart 2"
+  },
+  {
+    "objectID": "flexdashboard1.html",
+    "href": "flexdashboard1.html",
+    "title": "Assignment4FlexDashboard",
+    "section": "",
+    "text": "GSS2022 &lt;- read_dta(\"data/GSS2022.dta\")\nGSS2022 &lt;- GSS2022 %&gt;%\n  mutate(class = as.integer(class))\n\n\nclass_hist &lt;- GSS2022 %&gt;%\n  drop_na(class) %&gt;%\n  mutate(class = recode(class, \"1\" = \"Lower Class\", \"2\" = \"Working Class\", \"3\" = \"Middle Class\", \"4\" = \"Upper Class\")) %&gt;%\n  ggplot(aes(x=class)) +\n  geom_bar(color = \"black\") +\n  scale_x_discrete(limits = c(\"Lower Class\", \"Working Class\", \"Middle Class\", \"Upper Class\")) +\n  scale_y_continuous(label=comma) +\n  labs(title = \"Most Americans Identify as Working or Middle Class\",\n       x = \"Social Class\",\n       y = \"Count\",\n       caption = \"Data from 2022 General Social Survey (GSS), NORC\") +\n  theme(plot.title = element_text(size = 10))"
+  },
+  {
+    "objectID": "flexdashboard1.html#column",
+    "href": "flexdashboard1.html#column",
+    "title": "Assignment4FlexDashboard",
+    "section": "Column",
+    "text": "Column\n\nChart A\n\nclass_hist"
+  },
+  {
+    "objectID": "flexdashboard1.html#column-1",
+    "href": "flexdashboard1.html#column-1",
+    "title": "Assignment4FlexDashboard",
+    "section": "Column",
+    "text": "Column\n\nChart B\n\n\nChart C"
+  },
+  {
+    "objectID": "flexboard.html",
+    "href": "flexboard.html",
     "title": "Storyboard Commentary",
     "section": "",
     "text": "Frame 1\n\nSome commentary about Frame 1.\n\n\nFrame 2\n\nSome commentary about Frame 2."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "About Me",
+    "section": "",
+    "text": "My name is Tom Hesse. I am a student in the University of Masters of Science in Data Analytics & Computational Social Science program at the University of Massachusetts Amherst. In undergraduate, I studied Criminal Justice and Psychology at Westfield State University. I am broadly interested in the social sciences, but my specific research interests include demographics, state and national politics, human geography, crime & human behavior, and more. My most recent projects have focused on the rural-urban divide in America, and how immigration is connected to economic growth.\n\n\n\nOpen Resume"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "About Me",
+    "section": "",
+    "text": "My name is Tom Hesse. I am a student in the University of Masters of Science in Data Analytics & Computational Social Science program at the University of Massachusetts Amherst. In undergraduate, I studied Criminal Justice and Psychology at Westfield State University. I am broadly interested in the social sciences, but my specific research interests include demographics, state and national politics, human geography, crime & human behavior, and more. My most recent projects have focused on the rural-urban divide in America, and how immigration is connected to economic growth."
+  },
+  {
+    "objectID": "index.html#my-resume",
+    "href": "index.html#my-resume",
+    "title": "About Me",
+    "section": "",
+    "text": "Open Resume"
+  },
+  {
+    "objectID": "multiple_pages.html",
+    "href": "multiple_pages.html",
+    "title": "Multiple Pages",
+    "section": "",
+    "text": "#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\n#head(starbucks)\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n#head(starbucks)\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column\n\n\n\n\n\n\n\nSource: Starbucks Location in the US\nIn this visualization, we subset the data by keeping only starbucks in Massachusetts.\n\n\n\nStarbucks are more condensed in urban area, such as the greater Boston and Springfield."
+  },
+  {
+    "objectID": "multiple_pages.html#column",
+    "href": "multiple_pages.html#column",
+    "title": "Multiple Pages",
+    "section": "",
+    "text": "#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\n#head(starbucks)\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n#head(starbucks)\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column"
+  },
+  {
+    "objectID": "multiple_pages.html#column-1",
+    "href": "multiple_pages.html#column-1",
+    "title": "Multiple Pages",
+    "section": "",
+    "text": "Source: Starbucks Location in the US\nIn this visualization, we subset the data by keeping only starbucks in Massachusetts.\n\n\n\nStarbucks are more condensed in urban area, such as the greater Boston and Springfield."
+  },
+  {
+    "objectID": "multiple_pages.html#row",
+    "href": "multiple_pages.html#row",
+    "title": "Multiple Pages",
+    "section": "Row",
+    "text": "Row\n\nChart 1"
+  },
+  {
+    "objectID": "multiple_pages.html#row-1",
+    "href": "multiple_pages.html#row-1",
+    "title": "Multiple Pages",
+    "section": "Row",
+    "text": "Row\n\nChart 2\n\n\nChart 3"
   },
   {
     "objectID": "Project2/challenge_4_Fall23_solutions.html",
@@ -63,164 +224,10 @@
     "text": "Appendix: sources for data to be used in Part 3\nHere are some online sources and popular Online Dataset Hub:\n\nMany US governments (usually at the federal and state levels),  bureaus, and departments have open data archives on their websites, allowing the public to access, download, and use them. Just use Google to search for them.\n\n\n\nThe Harvard Dataverse Repository is a free data repository open to all researchers from any discipline, inside and outside the Harvard community, where you can share, archive, cite, access, and explore research data. Each individual Dataverse collection is a customizable collection of datasets (or a virtual repository) for organizing, managing, and showcasing datasets.\n\n\n\nInter-university Consortium for Political and Social Research (ICPSR) of the University of Michigan-Ann Arbor provides leadership and training in data access, curation, and methods of analysis for the social science research community. \n\n\n\nUN: https://data.un.org/\n\n\n\nOECD Data:  economic and development data of the most developed countries in the world.\n\n\n\nThe upper five sources are mainly for social science data; there is another very big community and open data archives for machine-learning and data science: Kaggle."
   },
   {
-    "objectID": "multiple_pages.html",
-    "href": "multiple_pages.html",
-    "title": "Multiple Pages",
-    "section": "",
-    "text": "#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\n#head(starbucks)\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n#head(starbucks)\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column\n\n\n\n\n\n\n\nSource: Starbucks Location in the US\nIn this visualization, we subset the data by keeping only starbucks in Massachusetts.\n\n\n\nStarbucks are more condensed in urban area, such as the greater Boston and Springfield."
-  },
-  {
-    "objectID": "multiple_pages.html#column",
-    "href": "multiple_pages.html#column",
-    "title": "Multiple Pages",
-    "section": "",
-    "text": "#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\n#head(starbucks)\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n#head(starbucks)\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column"
-  },
-  {
-    "objectID": "multiple_pages.html#column-1",
-    "href": "multiple_pages.html#column-1",
-    "title": "Multiple Pages",
-    "section": "",
-    "text": "Source: Starbucks Location in the US\nIn this visualization, we subset the data by keeping only starbucks in Massachusetts.\n\n\n\nStarbucks are more condensed in urban area, such as the greater Boston and Springfield."
-  },
-  {
-    "objectID": "multiple_pages.html#row",
-    "href": "multiple_pages.html#row",
-    "title": "Multiple Pages",
-    "section": "Row",
-    "text": "Row\n\nChart 1"
-  },
-  {
-    "objectID": "multiple_pages.html#row-1",
-    "href": "multiple_pages.html#row-1",
-    "title": "Multiple Pages",
-    "section": "Row",
-    "text": "Row\n\nChart 2\n\n\nChart 3"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "About Me",
-    "section": "",
-    "text": "Teach the class to host webpage and projects using GitHub.\n\n\n\nUIowa\nUPitt\nSun Yat-sen U\n\n\n\nDACSS UMass\nPoli Sci, Grinnell College\nCarter Center\nThanks for checking out my web site!"
-  },
-  {
-    "objectID": "index.html#goals",
-    "href": "index.html#goals",
-    "title": "About Me",
-    "section": "",
-    "text": "Teach the class to host webpage and projects using GitHub."
-  },
-  {
-    "objectID": "index.html#education",
-    "href": "index.html#education",
-    "title": "About Me",
-    "section": "",
-    "text": "UIowa\nUPitt\nSun Yat-sen U"
-  },
-  {
-    "objectID": "index.html#experience",
-    "href": "index.html#experience",
-    "title": "About Me",
-    "section": "",
-    "text": "DACSS UMass\nPoli Sci, Grinnell College\nCarter Center"
-  },
-  {
-    "objectID": "flexboard.html",
-    "href": "flexboard.html",
+    "objectID": "storyboard.html",
+    "href": "storyboard.html",
     "title": "Storyboard Commentary",
     "section": "",
     "text": "Frame 1\n\nSome commentary about Frame 1.\n\n\nFrame 2\n\nSome commentary about Frame 2."
-  },
-  {
-    "objectID": "Input Sidebar.html",
-    "href": "Input Sidebar.html",
-    "title": "Sidebar",
-    "section": "",
-    "text": "# shiny inputs defined here"
-  },
-  {
-    "objectID": "Input Sidebar.html#inputs",
-    "href": "Input Sidebar.html#inputs",
-    "title": "Sidebar",
-    "section": "",
-    "text": "# shiny inputs defined here"
-  },
-  {
-    "objectID": "Input Sidebar.html#column",
-    "href": "Input Sidebar.html#column",
-    "title": "Sidebar",
-    "section": "Column",
-    "text": "Column\n\nChart 1\n\n\nChart 2"
-  },
-  {
-    "objectID": "Project1/starbucks.html",
-    "href": "Project1/starbucks.html",
-    "title": "Interactive Map",
-    "section": "",
-    "text": "Make sure you change the author’s name in the above YAML header."
-  },
-  {
-    "objectID": "Project1/starbucks.html#setup",
-    "href": "Project1/starbucks.html#setup",
-    "title": "Interactive Map",
-    "section": "Setup",
-    "text": "Setup\nIf you have not installed the following packages, please install them before loading them.\n\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(haven) #for loading other datafiles (SAS, STATA, SPSS, etc.)\nlibrary(stringr) # if you have not installed this package, please install it.\nlibrary(ggplot2) # if you have not installed this package, please install it.\nlibrary(sf) \nlibrary(mapview)\n#Loading colorblind-friendly color map package: viridisLite\nlibrary(viridis)\n\nknitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)"
-  },
-  {
-    "objectID": "Project1/starbucks.html#part-1.-starbucks-map",
-    "href": "Project1/starbucks.html#part-1.-starbucks-map",
-    "title": "Interactive Map",
-    "section": "Part 1. Starbucks Map",
-    "text": "Part 1. Starbucks Map\n\nLoading the example data of starbuck locations\n\n\n#read the data: \nstarbucks &lt;- read_csv(\"https://raw.githubusercontent.com/libjohn/mapping-with-R/master/data/All_Starbucks_Locations_in_the_US_-_Map.csv\", show_col_types = FALSE)\nhead(starbucks)\n\n\n  \n\n\n##Create a column of \"gross profit\" and assign random numbers to it:\nstarbucks &lt;- starbucks |&gt;\n  mutate(gross_profit = sample(1000:10000, size = n(), replace = TRUE))\n\nhead(starbucks)\n\n\n  \n\n\n\nsubset locations data to MA\n\nstarbucksMA &lt;- starbucks  |&gt;\n  filter(State %in% c(\"MA\"))\n\nwrite.csv(starbucksMA, \"starbucksMA.csv\", row.names = FALSE)\n\nConvert the dataset into a spatial object (sf)\n\nstarbucks_sf &lt;- starbucksMA |&gt;\n  st_as_sf(coords = c(\"Longitude\", \"Latitude\"), crs = 4326)\n\nlet’s compare the difference between using size and brightness\nSize:\n\nmapview(starbucks_sf, col.regions = \"red\", cex = \"gross_profit\", legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#col.region: Sets all bubbles to a fixed color\n#cex:sets the bubble size to be proportional to a specific column\n\nBrightness:\n\nmapview(starbucks_sf, zcol = \"gross_profit\", cex = 3, legend = TRUE, map.types = \"OpenStreetMap\")\n\n\n\n\n#zcol = specifies that the colors (brightness or color/hue depends on if the variable is continous or not) of the bubbles should vary by the values of a particular column"
-  },
-  {
-    "objectID": "Project1/starbucks.html#part-2.-animated-graph-mtcars",
-    "href": "Project1/starbucks.html#part-2.-animated-graph-mtcars",
-    "title": "Interactive Map",
-    "section": "Part 2. Animated Graph (mtcars)",
-    "text": "Part 2. Animated Graph (mtcars)\n\nlibrary(gganimate)\nlibrary(gifski)\n\n# Example animation\np &lt;- ggplot(mtcars, aes(mpg, wt)) +\n  geom_point() +\n  transition_states(gear, transition_length = 2, state_length = 1) +\n  ggtitle('Gear: {closest_state}')\n\n# Use gifski_renderer for GIF animations\nanimate(p, renderer = gifski_renderer())\n\n\n\n\n\n\n\n# You can try different setup, such as duration, fps, size of the graph):\n#animate(p, duration = 25, fps = 10, width = 1000, height = 1000, renderer = #gifski_renderer())"
-  },
-  {
-    "objectID": "projects.html",
-    "href": "projects.html",
-    "title": "Projects",
-    "section": "",
-    "text": "Below I am going to demonstrate how to link to the project html files."
-  },
-  {
-    "objectID": "projects.html#syllabus-pdf-file",
-    "href": "projects.html#syllabus-pdf-file",
-    "title": "Projects",
-    "section": "Syllabus (PDF file)",
-    "text": "Syllabus (PDF file)\nOpen Syllabus"
-  },
-  {
-    "objectID": "projects.html#solutions-a-standalone-.html-file",
-    "href": "projects.html#solutions-a-standalone-.html-file",
-    "title": "Projects",
-    "section": "Solutions (A standalone .html file)",
-    "text": "Solutions (A standalone .html file)\nOpen the Standalone Page"
-  },
-  {
-    "objectID": "projects.html#a-project-with-live-map-and-animation",
-    "href": "projects.html#a-project-with-live-map-and-animation",
-    "title": "Projects",
-    "section": "A Project with live map and animation;",
-    "text": "A Project with live map and animation;\nProject 1"
-  },
-  {
-    "objectID": "projects.html#a-project-with-data-and-.qmd-file",
-    "href": "projects.html#a-project-with-data-and-.qmd-file",
-    "title": "Projects",
-    "section": "A Project with data and .qmd file",
-    "text": "A Project with data and .qmd file\nProject 2"
-  },
-  {
-    "objectID": "projects.html#a-dashboard-example",
-    "href": "projects.html#a-dashboard-example",
-    "title": "Projects",
-    "section": "A Dashboard Example",
-    "text": "A Dashboard Example\nOpen Dashboard"
   }
 ]

@@ -2,24 +2,11 @@
 title: "Projects"
 ---
 
-Below I am going to demonstrate how to link to the project html files.
+## Project 1: Practice Visualizing Geographic and Time-based Data in R
 
-## Syllabus (PDF file)
+This Project was an exercise in R, analyzing and visualizing geographic and time-based data. The objective was to practice writing code that analyzes and presents these types of data. This exercised examined the temporal and geographic distributions of UFO sightings.
+[Project 1](Thomas_Hesse_DACSS_601_Challenge_5/Thomas_Hesse_DACSS_601_Challenge_5.html)
 
-<a href="files/ChangeToTheNameOfTheFile.pdf" target="_blank">Open Syllabus</a>
+## Project 2: Dashboard
 
-## Solutions (A standalone .html file)
-
-<a href="files/challenge_5_Fall23_solutions.html" target="_blank">Open the Standalone Page</a>
-
-## A Project with live map and animation;
-
-[Project 1](Project1/starbucks.html)
-
-## A Project with data and .qmd file
-
-[Project 2](Project2/challenge_4_Fall23_solutions.html)
-
-
-## A Dashboard Example
-<a href="files/multiple_pages.html" target="_blank">Open Dashboard</a>
+This dashboard shows the distribution of US households by social class. [Project 2](flexdashboard1.html)
